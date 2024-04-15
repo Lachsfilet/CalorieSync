@@ -9,12 +9,12 @@ import react, { ReactSVG } from "react"
 export default function header() {
   return (
     <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6">
-      <Link className="hidden lg:flex" href="#">
-        <ActivityIcon className="h-6 w-6" />
+      <Link className="flex h-6 w-6 md:h-8 md:w-8" href="#">
+        <ActivityIcon className="h-full w-full" />
         <span className="sr-only">CalorieSync</span>
       </Link>
       <div className="flex w-full justify-center">
-        <NavigationMenu className="hidden lg:flex shrink-0 flex-1">
+        <NavigationMenu className="flex shrink-0 flex-1">
           <NavigationMenuList>
             <NavigationMenuLink asChild>
               <Link
@@ -52,10 +52,6 @@ export default function header() {
         </NavigationMenu>
       </div>
       <div className="ml-auto flex items-center">
-        <Button className="h-8 w-8 mr-2 lg:hidden" size="icon" variant="outline">
-          <ChevronDownIcon className="w-4 h-4" />
-          <span className="sr-only">Toggle navigation menu</span>
-        </Button>
         <UserButton afterSignOutUrl="/"/>
       </div>
     </header>
