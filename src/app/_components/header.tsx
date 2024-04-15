@@ -4,6 +4,7 @@ import Link from "next/link"
 import { NavigationMenuLink, NavigationMenuList, NavigationMenu } from "../../components/ui/navigation-menu"
 import { Button } from "../../components/ui/button"
 import { UserButton } from "@clerk/nextjs"
+import react, { ReactSVG } from "react"
 
 export default function header() {
   return (
@@ -61,7 +62,7 @@ export default function header() {
   )
 }
 
-function ActivityIcon(props: any) {
+function ActivityIcon(props: react.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -81,7 +82,7 @@ function ActivityIcon(props: any) {
 }
 
 
-function ChevronDownIcon(props: any) {
+function ChevronDownIcon(props: react.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
