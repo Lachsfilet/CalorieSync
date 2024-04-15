@@ -8,5 +8,9 @@ export default function Page() {
     return <SignIn />;
   }
  
-  return <div>Hello, {user.firstName} welcome to Clerk</div>;
+  return (
+    <>
+      <div>Hello, {user.firstName} welcome to Clerk</div>
+    </>
+  );
 }
