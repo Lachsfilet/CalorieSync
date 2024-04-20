@@ -27,7 +27,14 @@ import { db } from "~/server/db";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { getAuth } from "@clerk/nextjs/server";
 
-export const createTRPCContext = async (opts: CreateNextContextOptions) => { 
+export const createTRPCContext = async (opts: { headers: Headers }) => {
+  return {
+    db,
+    ...opts,
+  };
+};
+
+export const createPrivateTRPCContext = async (opts: CreateNextContextOptions) => { 
   const { req } = opts;
   const sesh = getAuth(req);
 
@@ -38,6 +45,7 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
     currentUser: user
   };
 };
+
 
 /**
  * 2. INITIALIZATION
@@ -60,6 +68,19 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
   },
 });
 
+const tP = initTRPC.context<typeof createPrivateTRPCContext>().create({
+  transformer: superjson,
+  errorFormatter({ shape, error }) {
+    return {
+      ...shape,
+      data: {
+        ...shape.data,
+        zodError:
+          error.cause instanceof ZodError ? error.cause.flatten() : null,
+      },
+    };
+  },
+});
 /**
  * Create a server-side caller.
  *
@@ -90,7 +111,7 @@ export const createTRPCRouter = t.router;
  */
 export const publicProcedure = t.procedure;
 
-export const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
+export const enforceUserIsAuthed = tP.middleware(async ({ ctx, next }) => {
   if (!ctx.currentUser) {
     throw new TRPCError({
       code: 'UNAUTHORIZED'
@@ -104,4 +125,4 @@ export const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
   });
 })
 
-export const privateProcedure = t.procedure.use(enforceUserIsAuthed)
+export const privateProcedure = tP.procedure.use(enforceUserIsAuthed)
