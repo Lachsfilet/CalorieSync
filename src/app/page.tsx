@@ -1,11 +1,12 @@
+"use client";
 import Link from "next/link";
+import { CreatePost } from "./_components/create-post";
+import { useUser } from "@clerk/nextjs";
+import { api } from "~/trpc/react";
+import { Post } from "~/app/interfaces/post";
+import { User } from "@clerk/nextjs/server";
 
-import { CreatePost } from "~/app/_components/create-post";
-import { api } from "~/trpc/server";
-
-export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
-
+export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
       <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
@@ -37,28 +38,42 @@ export default async function Home() {
           </Link>
         </div>
         <div className="flex flex-col items-center gap-2">
-          <p className="text-2xl text-white">
-            {hello ? hello.greeting : "Loading tRPC query..."}
-          </p>
+          <p className="text-2xl text-white"></p>
         </div>
-
-        <CrudShowcase />
       </div>
+      <CrudShowcase />
     </main>
   );
 }
 
-async function CrudShowcase() {
-  const latestPost = await api.post.getLatest();
+function CrudShowcase() {
+  const { user } = useUser();
+  let yourPostIndex = 0;
+  let yourLatestPost: Post | undefined;
+  const yourPosts: Post[] = [];
+  const { data: latestPost, isLoading } = api.example.getAll.useQuery();
+
+  if (!isLoading) {
+    latestPost?.forEach((post: Post) => {
+      if (post.userID == user?.id) {
+        yourPostIndex++;
+        yourPosts.push(post);
+        yourLatestPost = yourPosts[yourPostIndex - 1];
+      }
+    });
+  }
+
+  console.log(yourLatestPost);
 
   return (
     <div className="w-full max-w-xs">
       {latestPost ? (
-        <p className="truncate">Your most recent post: {latestPost.name}</p>
+        <p className="truncate">
+          Your most recent post: {yourLatestPost?.name}
+        </p>
       ) : (
         <p>You have no posts yet.</p>
       )}
-
       <CreatePost />
     </div>
   );

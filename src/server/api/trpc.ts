@@ -41,6 +41,7 @@ export const createPrivateTRPCContext = async (opts: CreateNextContextOptions) =
   const user = sesh.user
 
   return {
+    ...opts,
     db,
     currentUser: user
   };

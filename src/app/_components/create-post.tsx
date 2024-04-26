@@ -1,43 +1,67 @@
 "use client";
-
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { SignIn, UserButton, useUser } from "@clerk/nextjs";
 
 import { api } from "~/trpc/react";
 
-export function CreatePost() {
-  const router = useRouter();
-  const [name, setName] = useState("");
+import { useState } from "react";
 
-  const createPost = api.post.create.useMutation({
+export const CreatePost = () => {
+  const { user } = useUser();
+
+  const [input, setInput] = useState("");
+
+  const ctx = api.useContext();
+
+  const { mutate } = api.example.create.useMutation({
     onSuccess: () => {
-      router.refresh();
-      setName("");
+      setInput("");
+      void ctx.example.getLatest.invalidate();
+    },
+    onError: (e) => {
+      const errorMessage: string[] | undefined =
+        e.data?.zodError?.fieldErrors.example;
+      if (errorMessage?.[0]) {
+        console.error(errorMessage[0]);
+      } else {
+        console.error("Failed to post! Please try again later.");
+      }
     },
   });
 
+  if (!user) return <SignIn />;
+  console.log(user.id);
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        createPost.mutate({ name });
-      }}
-      className="flex flex-col gap-2"
-    >
-      <input
-        type="text"
-        placeholder="Title"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="w-full rounded-full px-4 py-2 text-black"
+    <div className="flex w-full gap-3">
+      <UserButton
+        appearance={{
+          elements: {
+            userButtonAvatarBox: {
+              width: 56,
+              height: 56,
+            },
+          },
+        }}
       />
-      <button
-        type="submit"
-        className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
-        disabled={createPost.isPending}
-      >
-        {createPost.isPending ? "Submitting..." : "Submit"}
-      </button>
-    </form>
+      <input
+        placeholder="Type something!"
+        className="grow bg-transparent outline-none"
+        type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            if (input !== "") {
+              mutate({ name: input, userID: user.id });
+            }
+          }
+        }}
+      />
+      {input !== "" && (
+        <button onClick={(): void => mutate({ name: input, userID: user.id })}>
+          Post
+        </button>
+      )}
+    </div>
   );
-}
+};
