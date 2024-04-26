@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 "use client";
 import { SignIn, UserButton, useUser } from "@clerk/nextjs";
 
@@ -20,7 +19,7 @@ export const CreatePost = () => {
     },
     onError: (e) => {
       const errorMessage =
-        e.data?.zodError?.fieldErrors.example;
+        e?.data?.zodError?.fieldErrors.example;
       if (errorMessage?.[0]) {
         console.error(errorMessage[0]);
       } else {
@@ -59,7 +58,7 @@ export const CreatePost = () => {
         }}
       />
       {input !== "" && (
-        <button onClick={(): void => mutate({ name: input, userID: user.id })}>
+        <button onClick={() => mutate({ name: input, userID: user.id })}>
           Post
         </button>
       )}
