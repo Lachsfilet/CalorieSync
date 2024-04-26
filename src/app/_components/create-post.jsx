@@ -5,7 +5,6 @@ import { SignIn, UserButton, useUser } from "@clerk/nextjs";
 import { api } from "~/trpc/react";
 
 import { useState } from "react";
-import { ZodError } from "zod";
 
 export const CreatePost = () => {
   const { user } = useUser();
@@ -20,7 +19,7 @@ export const CreatePost = () => {
       void ctx.example.getLatest.invalidate();
     },
     onError: (e) => {
-      const errorMessage: string[] | undefined =
+      const errorMessage =
         e.data?.zodError?.fieldErrors.example;
       if (errorMessage?.[0]) {
         console.error(errorMessage[0]);
