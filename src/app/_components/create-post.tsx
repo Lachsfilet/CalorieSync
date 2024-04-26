@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 "use client";
 import { SignIn, UserButton, useUser } from "@clerk/nextjs";
 
 import { api } from "~/trpc/react";
 
 import { useState } from "react";
+import { ZodError } from "zod";
 
 export const CreatePost = () => {
   const { user } = useUser();
